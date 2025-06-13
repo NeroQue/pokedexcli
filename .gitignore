@@ -21,4 +21,6 @@ go.work
 .idea/
 .vscode/
 *.swp
-*.swo 
+*.swo
+
+repl.log
