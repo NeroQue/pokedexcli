@@ -42,6 +42,11 @@ func init() {
 			Description: "Catches the Pokemon <Pokemon Name>",
 			Callback:    CommandCatch,
 		},
+		"inspect": {
+			Name:        "inspect",
+			Description: "Shows you details about your pokemon",
+			Callback:    CommandInspect,
+		},
 	}
 }
 
@@ -98,4 +103,30 @@ func CommandCatch(cfg *models.Config, args ...string) error {
 	endpoint := fmt.Sprintf("https://pokeapi.co/api/v2/pokemon/%s/", pokemon)
 	fmt.Printf("Throwing a Pokeball at %s...", pokemon)
 	return api.FetchAndCatch(cfg, endpoint, pokemon)
+}
+
+func CommandInspect(cfg *models.Config, args ...string) error {
+	if len(args) < 1 {
+		return fmt.Errorf("usage: inspect <pokemon-name>")
+	}
+	name := args[0]
+	pokemon, ok := cfg.CaughtPokemon[name]
+	if ok {
+		fmt.Printf("Name: %s\n", pokemon.Name)
+		fmt.Printf("Height: %d\n", pokemon.Height)
+		fmt.Printf("Weight: %d\n", pokemon.Weight)
+
+		fmt.Println("Stats:")
+		for _, stat := range pokemon.Stats {
+			fmt.Printf("  -%s: %d\n", stat.Stat.Name, stat.BaseStat)
+		}
+
+		fmt.Println("Types:")
+		for _, typeInfo := range pokemon.Types {
+			fmt.Printf("  - %s\n", typeInfo.Type.Name)
+		}
+	} else {
+		fmt.Printf("You haven't caught %s yet!\n", name)
+	}
+	return nil
 }
