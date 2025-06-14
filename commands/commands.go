@@ -32,16 +32,26 @@ func init() {
 			Description: "Shows the previous locations of the Pokemon world",
 			Callback:    CommandMapb,
 		},
+		"explore": {
+			Name:        "explore",
+			Description: "Shows the available pokemon on the given map",
+			Callback:    CommandExplore,
+		},
+		"catch": {
+			Name:        "catch",
+			Description: "Catches the Pokemon <Pokemon Name>",
+			Callback:    CommandCatch,
+		},
 	}
 }
 
-func CommandExit(cfg *models.Config) error {
+func CommandExit(cfg *models.Config, args ...string) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return fmt.Errorf("Exited")
 }
 
-func CommandHelp(cfg *models.Config) error {
+func CommandHelp(cfg *models.Config, args ...string) error {
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Println("Usage:")
 
@@ -51,7 +61,7 @@ func CommandHelp(cfg *models.Config) error {
 	return nil
 }
 
-func CommandMap(cfg *models.Config) error {
+func CommandMap(cfg *models.Config, args ...string) error {
 	endpoint := ""
 	if cfg.Next != "" {
 		endpoint = cfg.Next
@@ -61,7 +71,7 @@ func CommandMap(cfg *models.Config) error {
 	return api.FetchAndDisplay(cfg, endpoint)
 }
 
-func CommandMapb(cfg *models.Config) error {
+func CommandMapb(cfg *models.Config, args ...string) error {
 	endpoint := ""
 	if cfg.Previous != "" {
 		endpoint = cfg.Previous
@@ -69,4 +79,23 @@ func CommandMapb(cfg *models.Config) error {
 		endpoint = "https://pokeapi.co/api/v2/location-area/"
 	}
 	return api.FetchAndDisplay(cfg, endpoint)
+}
+
+func CommandExplore(cfg *models.Config, args ...string) error {
+	if len(args) < 1 {
+		return fmt.Errorf("usage: explore <location-area>")
+	}
+	area := args[0]
+	endpoint := fmt.Sprintf("https://pokeapi.co/api/v2/location-area/%s/", area)
+	return api.FetchAndExplore(cfg, endpoint)
+}
+
+func CommandCatch(cfg *models.Config, args ...string) error {
+	if len(args) < 1 {
+		return fmt.Errorf("usage: catch <location-area>")
+	}
+	pokemon := args[0]
+	endpoint := fmt.Sprintf("https://pokeapi.co/api/v2/pokemon/%s/", pokemon)
+	fmt.Printf("Throwing a Pokeball at %s...", pokemon)
+	return api.FetchAndCatch(cfg, endpoint, pokemon)
 }

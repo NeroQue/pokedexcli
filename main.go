@@ -14,7 +14,8 @@ import (
 
 func main() {
 	cfg := &models.Config{
-		Cache: cache.NewCache(10 * time.Second),
+		Cache:         cache.NewCache(10 * time.Second),
+		CaughtPokemon: make(map[string]models.PokemonResponse),
 	}
 	r := io.Reader(os.Stdin)
 	scanner := cli.NewScanner(r)
@@ -36,7 +37,7 @@ func main() {
 		commandExists := false
 		for cmdName, cmd := range commands.Commands {
 			if command == cmdName {
-				err := cmd.Callback(cfg)
+				err := cmd.Callback(cfg, words[1:]...)
 				if err != nil {
 					fmt.Println("Error:", err)
 				}
